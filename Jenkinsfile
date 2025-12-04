@@ -1,27 +1,26 @@
-pipeline{
-    agent any{
-        stages{
-            stage('Build'){
-                steps{
-                    echo "Build docker image"
-                    bat "docker build -t image:/v1"
-                }
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo "Build Docker Image"
+                bat "docker build -t mypythonflaskapp ."
             }
-            stage('Push'){
-                steps{
-                    bat "docker push image:"
-                }
+        }
+        stage('Run') {
+            steps {
+                echo "Run application in Docker Container"
+                bat "docker rm -f mycontainer || exit 0"
+                bat "docker run -d -p 5000:5000 --name mycontainer mypythonflaskapp"
             }
-            stage('login'){
-                steps{
-                    bat "docker login -u -p"
-                }
-            }
-            stage('Run'){
-                steps{
-                    bat "docker run "
-                }
-            }
+        }
+    }
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Please check the logs.'
         }
     }
 }
